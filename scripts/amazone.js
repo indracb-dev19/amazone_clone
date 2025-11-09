@@ -1,4 +1,4 @@
-let productsHTML = '';
+let productsHTML = "";
 
 products.forEach((product) => {
   productsHTML += `
@@ -25,7 +25,7 @@ products.forEach((product) => {
           </div>
 
           <div class="product-quantity-container">
-            <select>
+            <select id="select-product-qty-${product.id}">
               <option selected value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>
@@ -41,40 +41,64 @@ products.forEach((product) => {
 
           <div class="product-spacer"></div>
 
-          <div class="added-to-cart">
+          <div class="added-to-cart" id="success-cart-${product.id}">
             <img src="images/icons/checkmark.png">
             Added
           </div>
 
-          <button class="add-to-cart-button button-primary" data-product-id="${product.id}">
+          <button class="add-to-cart-button button-primary" data-product-id="${
+            product.id
+          }">
             Add to Cart
           </button>
         </div>
     `;
 });
 
-document.getElementById('product-list').innerHTML = productsHTML;
+document.getElementById("product-list").innerHTML = productsHTML;
 
 // add to cart button
-document.querySelectorAll('.add-to-cart-button').forEach((btn) => {
-    btn.addEventListener('click', () => {
-        const { productId } = btn.dataset;
+document.querySelectorAll(".add-to-cart-button").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const { productId } = btn.dataset;
 
-        const existingItem = carts.find((item) => item.productId === productId);
+    const existingItem = carts.find((item) => item.productId === productId);
 
-        if (existingItem) {
-            existingItem.quantity += 1;
-        } else {
-            carts.push({
-                productId,
-                quantity: 1
-            });
-        }
+    const productQty = document.getElementById(`select-product-qty-${productId}`).value;
 
-        let totalProduct = 0;
+    if (existingItem) {
+      existingItem.quantity += Number.parseInt(productQty);
+    } else {
+      carts.push({
+        productId,
+        quantity: Number.parseInt(productQty),
+      });
+    }
 
-        carts.forEach((item) => totalProduct += item.quantity);
-
-        document.querySelector('.cart-quantity').innerHTML = totalProduct;
-    });
+    setTotalItem();
+    successAddedItem(productId);
+  });
 });
+
+function setTotalItem() {
+  // update total item
+  let totalProduct = 0;
+
+  carts.forEach((item) => (totalProduct += item.quantity));
+
+  document.querySelector(".cart-quantity").innerHTML = totalProduct;
+}
+
+function successAddedItem(productId) {
+  // show the success added to cart element
+  document
+    .getElementById(`success-cart-${productId}`)
+    .classList.add("show-element");
+
+  // set timeout to hide success message
+  setTimeout(() => {
+    document
+      .getElementById(`success-cart-${productId}`)
+      .classList.remove("show-element");
+  }, 1000);
+}
