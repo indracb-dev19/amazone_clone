@@ -1,7 +1,11 @@
-import { updateCart, successAddedToCart } from "../data/carts.js";
+import { updateCart, successAddedToCart, getTotalItem } from "../data/carts.js";
 import { products } from "../data/products.js";
+import { centsToDollar } from "../helper/moneyConverter.js";
 
 let productsHTML = "";
+
+// set total item first load
+setTotalItem();
 
 products.forEach((product) => {
   productsHTML += `
@@ -24,7 +28,7 @@ products.forEach((product) => {
           </div>
 
           <div class="product-price">
-            $${(product.priceCents / 100).toFixed(2)}
+            $${centsToDollar(product.priceCents)}
           </div>
 
           <div class="product-quantity-container">
@@ -66,5 +70,10 @@ document.querySelectorAll(".add-to-cart-button").forEach((btn) => {
     const { productId } = btn.dataset;
     updateCart(productId);
     successAddedToCart(productId);
+    setTotalItem();
   });
 });
+
+function setTotalItem() {
+  document.querySelector('.cart-quantity').innerHTML = getTotalItem();
+}
