@@ -1,40 +1,51 @@
-import { removeFromCart, getCarts, updateCartQuantity, getTotalItem } from "../data/carts.js";
+import dayjs from "https://unpkg.com/supersimpledev@8.5.0/dayjs/esm/index.js";
+import {
+  removeFromCart,
+  getCarts,
+  updateCartQuantity,
+  getTotalItem,
+  updateDeliveryOption,
+} from "../data/carts.js";
 import { products } from "../data/products.js";
 import { centsToDollar } from "../helper/moneyConverter.js";
-import dayjs from "https://unpkg.com/supersimpledev@8.5.0/dayjs/esm/index.js";
+import { deliveryOptions } from "../data/deliveryOptions.js";
 
-let htmlCartOrderItem;
+function renderHTML() {
+  // get carts from storage
+  const carts = getCarts();
 
-// get carts from storage
-const carts = getCarts();
-carts.forEach((cartItem) => {
-  const product = products.find((item) => item.id === cartItem.productId);
+  document.querySelector(".order-summary").innerHTML = carts.map((cartItem) => {
+    let html = "";
+    const product = products.find((item) => item.id === cartItem.productId);
+    if (product && product !== undefined) {
+      html += generateCheckoutProductHTML(product, cartItem);
+    }
+    return html;
+  });
 
-  if (product) {
-    product.quantity = cartItem.quantity;
-    htmlCartOrderItem += generateCheckoutProductHTML(product);
-    // put html
-    document.querySelector(".order-summary").innerHTML = htmlCartOrderItem;
+  setTotalItem();
+
+  function setTotalItem() {
+    document.querySelector("#total-order-item").innerHTML = getTotalItem();
   }
-});
 
-setTotalItem();
+  function getDeliveredDate(addedDays) {
+    const today = dayjs();
+    const deliveredDate = today.add(Number.parseInt(addedDays), "days");
+    return deliveredDate.format("dddd, MMM D YYYY");
+  }
 
-function setTotalItem() {
-  document.querySelector("#total-order-item").innerHTML = getTotalItem();
-}
-
-function getDeliveredDate(addedDays) {
-  const today = dayjs();
-  const deliveredDate = today.add(Number.parseInt(addedDays), 'days');
-  return deliveredDate.format("dddd, MMM D YYYY");
-}
-
-function generateCheckoutProductHTML(product) {
-  return `
+  function generateCheckoutProductHTML(product, cartItem) {
+    return `
     <div class="cart-item-container" id="cart-item-container-${product.id}">
         <div class="delivery-date">
-            Delivery date: Tuesday, June 21
+            Delivery date: <span id="delivery-date-label-${product.id}">
+            ${getDeliveredDate(
+              deliveryOptions.find(
+                (deliveryOption) =>
+                  deliveryOption.id === cartItem.deliveryOptionId
+              ).deliveryDays
+            )}</span>
         </div>
 
         <div class="cart-item-details-grid">
@@ -52,12 +63,12 @@ function generateCheckoutProductHTML(product) {
                     <span>
                       Quantity: <span class="quantity-label" id="quantity-label-${
                         product.id
-                      }">${product.quantity}</span>
+                      }">${cartItem.quantity}</span>
                       <input type="hidden" id="update-cart-qty-input-${
                         product.id
                       }" class="update-cart-qty-input" value="${
-                        product.quantity
-                      }" min="1">
+      cartItem.quantity
+    }" min="1">
                     </span>
                     <span class="save-update-quantity-link link-primary" id="save-update-quantity-${
                       product.id
@@ -81,134 +92,149 @@ function generateCheckoutProductHTML(product) {
                 <div class="delivery-options-title">
                     Choose a delivery option:
                 </div>
-                <div class="delivery-option">
-                    <input type="radio" checked
-                    class="delivery-option-input"
-                    name="delivery-option-${product.id}">
-                    <div>
-                        <div class="delivery-option-date">
-                            ${getDeliveredDate(7)}
-                        </div>
-                        <div class="delivery-option-price">
-                            FREE Shipping
-                        </div>
-                    </div>
-                </div>
-                <div class="delivery-option">
-                    <input type="radio"
-                    class="delivery-option-input"
-                    name="delivery-option-${product.id}">
-                    <div>
-                        <div class="delivery-option-date">
-                            ${getDeliveredDate(3)}
-                        </div>
-                        <div class="delivery-option-price">
-                            $4.99 - Shipping
-                        </div>
-                    </div>
-                </div>
-                <div class="delivery-option">
-                    <input type="radio"
-                    class="delivery-option-input"
-                    name="delivery-option-${product.id}">
-                    <div>
-                        <div class="delivery-option-date">
-                            ${getDeliveredDate(1)}
-                        </div>
-                        <div class="delivery-option-price">
-                            $9.99 - Shipping
-                        </div>
-                    </div>
-                </div>
+                ${generateDeliveryOptionsHTML(product, cartItem)}
             </div>
         </div>
-    </div>
+      </div>
     `;
-}
+  }
 
-// action for delete product
-document.querySelectorAll(".delete-quantity-link").forEach((deleteItem) => {
-  // get product id
-  const { productId } = deleteItem.dataset;
+  function generateDeliveryOptionsHTML(product, cartItem) {
+    let html = "";
 
-  deleteItem.addEventListener("click", () => {
-    // give user confirmation
-    if (confirm("Are you sure want to delete this product?")) {
-      // accept to delete product
-      // get product
+    deliveryOptions.forEach((deliveryOption) => {
+      html += `
+      <div class="delivery-option"
+          data-product-id="${product.id}"
+          data-delivery-option-id="${deliveryOption.id}"
+      >
+          <input type="radio"
+            class="delivery-option-input"
+            name="delivery-option-${product.id}" 
+            value="${deliveryOption.id}" 
+            ${cartItem.deliveryOptionId === deliveryOption.id ? "checked" : ""}>
+          <div>
+              <div class="delivery-option-date">
+                  ${getDeliveredDate(deliveryOption.deliveryDays)}
+              </div>
+              <div class="delivery-option-price">
+                  ${
+                    deliveryOption.priceCents === 0
+                      ? "FREE"
+                      : "$" + centsToDollar(deliveryOption.priceCents)
+                  } - Shipping
+              </div>
+          </div>
+      </div>
+    `;
+    });
 
-      const deletedProduct = carts.find(
-        (cartItem) => cartItem.productId === productId
+    return html;
+  }
+
+  // action for delete product
+  document.querySelectorAll(".delete-quantity-link").forEach((deleteItem) => {
+    // get product id
+    const { productId } = deleteItem.dataset;
+
+    deleteItem.addEventListener("click", () => {
+      // give user confirmation
+      if (confirm("Are you sure want to delete this product?")) {
+        // accept to delete product
+        // get product
+
+        const deletedProduct = carts.find(
+          (cartItem) => cartItem.productId === productId
+        );
+
+        if (deletedProduct) {
+          // remove from cart
+          removeFromCart(productId);
+
+          // remove element
+          document.getElementById(`cart-item-container-${productId}`).remove();
+
+          //set total item
+          setTotalItem();
+        }
+      }
+    });
+  });
+
+  // action for update quantity
+  document.querySelectorAll(".update-quantity-link").forEach((updateItem) => {
+    // get product id
+    const { productId } = updateItem.dataset;
+
+    updateItem.addEventListener("click", () => {
+      const qtyInput = document.getElementById(
+        `update-cart-qty-input-${productId}`
+      );
+      const qtyLabel = document.getElementById(`quantity-label-${productId}`);
+      const saveLink = document.getElementById(
+        `save-update-quantity-${productId}`
+      );
+      const updateLink = document.getElementById(
+        `update-quantity-${productId}`
       );
 
-      if (deletedProduct) {
-        // remove from cart
-        removeFromCart(productId);
-
-        // remove element
-        document.getElementById(`cart-item-container-${productId}`).remove();
-
-        //set total item
-        setTotalItem();
-      }
-    }
-  });
-});
-
-// action for update quantity
-document.querySelectorAll(".update-quantity-link").forEach((updateItem) => {
-  // get product id
-  const { productId } = updateItem.dataset;
-
-  updateItem.addEventListener("click", () => {
-    const qtyInput = document.getElementById(
-      `update-cart-qty-input-${productId}`
-    );
-    const qtyLabel = document.getElementById(`quantity-label-${productId}`);
-    const saveLink = document.getElementById(
-      `save-update-quantity-${productId}`
-    );
-    const updateLink = document.getElementById(`update-quantity-${productId}`);
-
-    // remove type attr for input and set again
-    qtyInput.removeAttribute("type");
-    qtyInput.setAttribute("type", "number");
-
-    saveLink.removeAttribute("hidden");
-    qtyLabel.setAttribute("hidden", true);
-    updateLink.setAttribute("hidden", true);
-  });
-});
-
-// action for save quantity update
-document.querySelectorAll(".save-update-quantity-link").forEach((saveItem) => {
-  // get product id
-  const { productId } = saveItem.dataset;
-
-  saveItem.addEventListener("click", () => {
-    const qtyInput = document.getElementById(
-      `update-cart-qty-input-${productId}`
-    );
-    const qtyLabel = document.getElementById(`quantity-label-${productId}`);
-    const saveLink = document.getElementById(
-      `save-update-quantity-${productId}`
-    );
-    const updateLink = document.getElementById(`update-quantity-${productId}`);
-
-    // save quantity first
-
-    if (updateCartQuantity(productId, qtyInput.value)) {
       // remove type attr for input and set again
       qtyInput.removeAttribute("type");
-      qtyInput.setAttribute("type", "hidden");
+      qtyInput.setAttribute("type", "number");
 
-      saveLink.setAttribute("hidden", true);
-      qtyLabel.removeAttribute("hidden");
-      updateLink.removeAttribute("hidden");
-      qtyLabel.innerHTML = qtyInput.value;
-      setTotalItem();
-    } else {
-      alert("Failed update quantity");
-    }
+      saveLink.removeAttribute("hidden");
+      qtyLabel.setAttribute("hidden", true);
+      updateLink.setAttribute("hidden", true);
+    });
   });
-});
+
+  // action for save quantity update
+  document
+    .querySelectorAll(".save-update-quantity-link")
+    .forEach((saveItem) => {
+      // get product id
+      const { productId } = saveItem.dataset;
+
+      saveItem.addEventListener("click", () => {
+        const qtyInput = document.getElementById(
+          `update-cart-qty-input-${productId}`
+        );
+        const qtyLabel = document.getElementById(`quantity-label-${productId}`);
+        const saveLink = document.getElementById(
+          `save-update-quantity-${productId}`
+        );
+        const updateLink = document.getElementById(
+          `update-quantity-${productId}`
+        );
+
+        // save quantity first
+        try {
+          updateCartQuantity(productId, qtyInput.value);
+          // remove type attr for input and set again
+          qtyInput.removeAttribute("type");
+          qtyInput.setAttribute("type", "hidden");
+
+          saveLink.setAttribute("hidden", true);
+          qtyLabel.removeAttribute("hidden");
+          updateLink.removeAttribute("hidden");
+
+          qtyLabel.innerHTML = qtyInput.value;
+
+          setTotalItem();
+        } catch (error) {
+          alert("Failed update quantity");
+        }
+      });
+    });
+
+  document.querySelectorAll(".delivery-option").forEach((elm) => {
+    const { productId, deliveryOptionId } = elm.dataset;
+
+    elm.addEventListener("click", () => {
+      updateDeliveryOption(productId, deliveryOptionId);
+      renderHTML();
+    });
+  });
+}
+
+renderHTML();

@@ -21,7 +21,7 @@ export function updateCart(productId) {
     carts.push({
       productId,
       quantity: Number.parseInt(productQty),
-      deliveryOptionId: 1
+      deliveryOptionId: 1,
     });
   }
 
@@ -32,16 +32,10 @@ export function updateCart(productId) {
 export function updateCartQuantity(productId, productQuantity) {
   carts = getCarts();
 
-  try {
-    console.log(carts.find((cartItem) => cartItem.productId === productId).quantity);
-    carts.find((cartItem) => cartItem.productId === productId).quantity =
-      Number.parseInt(productQuantity);
-    saveCart();
-    return true;
-  } catch (error) {
-    console.log(error);
-    return false;
-  }
+  carts.find((cartItem) => cartItem.productId === productId).quantity =
+    Number.parseInt(productQuantity);
+    
+  saveCart();
 }
 
 export function successAddedToCart(productId) {
@@ -97,4 +91,13 @@ function calculateItem() {
   totalProduct = total;
 
   localStorage.setItem("totalCartItem", totalProduct.toString());
+}
+
+export function updateDeliveryOption(productId, deliveryOptionId) {
+  carts = getCarts();
+
+  carts.find((cartItem) => cartItem.productId === productId).deliveryOptionId =
+    Number.parseInt(deliveryOptionId);
+
+  saveCart();
 }
