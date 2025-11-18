@@ -1,0 +1,63 @@
+import { getProduct } from "../../data/products.js";
+import { getDeliveryOption } from "../../data/deliveryOptions.js";
+import { getCarts, getTotalItem } from "../../data/carts.js";
+import { centsToDollar } from "../../helper/moneyConverter.js";
+
+export function renderPaymentSummaryHTML() {
+    let cartItemAmount = 0;
+    let shippingAmount = 0;
+    const tax = 10/100;
+
+    const taxString = `${tax * 100} %`;
+
+    const carts = getCarts();
+
+    carts.forEach(cartItem => {
+        const product = getProduct(cartItem.productId);
+        cartItemAmount += cartItem.quantity * product.priceCents;
+
+        const deliveryOption = getDeliveryOption(cartItem.deliveryOptionId);
+        shippingAmount += deliveryOption.priceCents;
+    });
+
+    const totalAmountWithoutTax = cartItemAmount + shippingAmount;
+    const taxAmount = totalAmountWithoutTax * tax;
+    const totalAmount = totalAmountWithoutTax + taxAmount;
+
+    document.querySelector('.payment-summary').innerHTML = `
+    
+          <div class="payment-summary-title">
+            Order Summary
+          </div>
+
+          <div class="payment-summary-row">
+            <div>Items (${getTotalItem()}):</div>
+            <div class="payment-summary-money">$${cartItemAmount === NaN ? 0 : centsToDollar(cartItemAmount)}</div>
+          </div>
+
+          <div class="payment-summary-row">
+            <div>Shipping &amp; handling:</div>
+            <div class="payment-summary-money">$${shippingAmount === NaN ? 0 : centsToDollar(shippingAmount)}</div>
+          </div>
+
+          <div class="payment-summary-row subtotal-row">
+            <div>Total before tax:</div>
+            <div class="payment-summary-money">$${totalAmountWithoutTax === NaN ? 0 : centsToDollar(totalAmountWithoutTax)}</div>
+          </div>
+
+          <div class="payment-summary-row">
+            <div>Estimated tax (${taxString}):</div>
+            <div class="payment-summary-money">$${taxAmount === NaN ? 0 : centsToDollar(taxAmount)}</div>
+          </div>
+
+          <div class="payment-summary-row total-row">
+            <div>Order total:</div>
+            <div class="payment-summary-money">$${totalAmount === NaN ? 0 : centsToDollar(totalAmount)}</div>
+          </div>
+
+          <button class="place-order-button button-primary">
+            Place your order
+          </button>
+
+    `;
+}

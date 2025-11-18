@@ -1,3 +1,7 @@
+export function getDeliveryOption(deliveryOptionId = 1) {
+    return deliveryOptions.find((deliveryOption) => deliveryOption.id === Number.parseInt(deliveryOptionId));
+}
+
 export const deliveryOptions = [
     {
         id: 1,
