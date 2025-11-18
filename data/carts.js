@@ -4,6 +4,11 @@ export let carts = [];
 let totalProduct = 0;
 
 export function updateCart(productId) {
+  const cartStorage = getCarts();
+  if (cartStorage !== null) {
+    carts = cartStorage;
+  }
+
   const existingItem = carts.find((item) => item.productId === productId);
 
   const productQty = document.getElementById(
@@ -16,11 +21,27 @@ export function updateCart(productId) {
     carts.push({
       productId,
       quantity: Number.parseInt(productQty),
+      deliveryOptionId: 1
     });
   }
 
   // save cart
   saveCart();
+}
+
+export function updateCartQuantity(productId, productQuantity) {
+  carts = getCarts();
+
+  try {
+    console.log(carts.find((cartItem) => cartItem.productId === productId).quantity);
+    carts.find((cartItem) => cartItem.productId === productId).quantity =
+      Number.parseInt(productQuantity);
+    saveCart();
+    return true;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
 }
 
 export function successAddedToCart(productId) {
@@ -38,17 +59,28 @@ export function successAddedToCart(productId) {
 }
 
 export function removeFromCart(productId) {
+  // get carts from storage
+  const cartStorage = getCarts();
+  if (cartStorage !== null) {
+    carts = cartStorage;
+  }
+
   carts = carts.filter((cartItem) => cartItem.productId !== productId);
   // save cart
   saveCart();
 }
 
 export function getCarts() {
-  return JSON.parse(localStorage.getItem("cart"));
+  try {
+    return JSON.parse(localStorage.getItem("cart"));
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
 }
 
 export function getTotalItem() {
-  const total = Number.parseInt(localStorage.getItem('totalCartItem'));
+  const total = Number.parseInt(localStorage.getItem("totalCartItem"));
 
   return !total ? 0 : total;
 }
@@ -61,8 +93,8 @@ function saveCart() {
 function calculateItem() {
   let total = 0;
   carts.forEach((item) => (total += item.quantity));
-  
+
   totalProduct = total;
 
-  localStorage.setItem('totalCartItem', totalProduct.toString());
+  localStorage.setItem("totalCartItem", totalProduct.toString());
 }

@@ -32,6 +32,11 @@
   align-items: start;
 }
 
+.update-cart-qty-input{
+  width: 25px;
+  text-align: center;
+}
+
 @media (max-width: 1000px) {
   .main {
     max-width: 500px;
