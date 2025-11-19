@@ -24,11 +24,7 @@ export function renderOrderSummaryHTML() {
     return html;
   });
 
-  setTotalItem();
-
-  function setTotalItem() {
-    document.querySelector("#total-order-item").innerHTML = getTotalItem();
-  }
+  document.querySelector("#total-order-item").innerHTML = getTotalItem();
 
   function getDeliveredDate(addedDays) {
     const today = dayjs();
@@ -152,11 +148,7 @@ export function renderOrderSummaryHTML() {
           // remove from cart
           removeFromCart(productId);
 
-          // remove element
-          document.getElementById(`cart-item-container-${productId}`).remove();
-
-          //set total item
-          setTotalItem();
+          renderOrderSummaryHTML();
           renderPaymentSummaryHTML();
         }
       }
@@ -222,7 +214,7 @@ export function renderOrderSummaryHTML() {
 
           qtyLabel.innerHTML = qtyInput.value;
 
-          setTotalItem();
+          renderOrderSummaryHTML();
           renderPaymentSummaryHTML();
         } catch (error) {
           alert("Failed update quantity");
