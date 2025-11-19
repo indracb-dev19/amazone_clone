@@ -1,10 +1,10 @@
 import dayjs from "https://unpkg.com/supersimpledev@8.5.0/dayjs/esm/index.js";
 import {
   removeFromCart,
-  getCarts,
   updateCartQuantity,
   getTotalItem,
   updateDeliveryOption,
+  carts
 } from "../../data/carts.js";
 import { getProduct } from "../../data/products.js";
 import { centsToDollar } from "../../helper/moneyConverter.js";
@@ -12,9 +12,6 @@ import { deliveryOptions } from "../../data/deliveryOptions.js";
 import { renderPaymentSummaryHTML } from "./paymentSummary.js";
 
 export function renderOrderSummaryHTML() {
-  // get carts from storage
-  const carts = getCarts();
-
   document.querySelector(".order-summary").innerHTML = carts.map((cartItem) => {
     let html = "";
     const product = getProduct(cartItem.productId);
@@ -24,7 +21,9 @@ export function renderOrderSummaryHTML() {
     return html;
   });
 
-  document.querySelector("#total-order-item").innerHTML = getTotalItem();
+  if (document.querySelector("#total-order-item")) {
+    document.querySelector("#total-order-item").innerHTML = getTotalItem();
+  }
 
   function getDeliveredDate(addedDays) {
     const today = dayjs();
@@ -77,9 +76,9 @@ export function renderOrderSummaryHTML() {
                     }" data-product-id="${product.id}">
                       Update
                     </span>
-                    <span class="delete-quantity-link link-primary" data-product-id="${
+                    <span class="delete-quantity-link link-primary" id="delete-product-${
                       product.id
-                    }">
+                    }" data-product-id="${product.id}">
                     Delete
                     </span>
                 </div>
@@ -135,22 +134,18 @@ export function renderOrderSummaryHTML() {
     const { productId } = deleteItem.dataset;
 
     deleteItem.addEventListener("click", () => {
-      // give user confirmation
-      if (confirm("Are you sure want to delete this product?")) {
-        // accept to delete product
-        // get product
+      // get product
 
-        const deletedProduct = carts.find(
-          (cartItem) => cartItem.productId === productId
-        );
+      const deletedProduct = carts.find(
+        (cartItem) => cartItem.productId === productId
+      );
 
-        if (deletedProduct) {
-          // remove from cart
-          removeFromCart(productId);
+      if (deletedProduct) {
+        // remove from cart
+        removeFromCart(productId);
 
-          renderOrderSummaryHTML();
-          renderPaymentSummaryHTML();
-        }
+        renderOrderSummaryHTML();
+        renderPaymentSummaryHTML();
       }
     });
   });
