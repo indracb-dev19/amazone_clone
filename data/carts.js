@@ -1,19 +1,22 @@
-export let carts = [];
-
+export let carts;
 // total item
 let totalProduct = 0;
 
+loadCartsFromStorage();
+
+export function loadCartsFromStorage() {
+  carts = JSON.parse(localStorage.getItem("cart")) ?? [];
+}
+
 export function updateCart(productId) {
-  const cartStorage = getCarts();
-  if (cartStorage !== null) {
-    carts = cartStorage;
-  }
-
   const existingItem = carts.find((item) => item.productId === productId);
+  let productQty = 1;
 
-  const productQty = document.getElementById(
-    `select-product-qty-${productId}`
-  ).value;
+  if (document.getElementById(`select-product-qty-${productId}`)) {
+    productQty = document.getElementById(
+      `select-product-qty-${productId}`
+    ).value;
+  }
 
   if (existingItem) {
     existingItem.quantity += Number.parseInt(productQty);
@@ -30,11 +33,9 @@ export function updateCart(productId) {
 }
 
 export function updateCartQuantity(productId, productQuantity) {
-  carts = getCarts();
-
   carts.find((cartItem) => cartItem.productId === productId).quantity =
     Number.parseInt(productQuantity);
-    
+
   saveCart();
 }
 
@@ -53,12 +54,6 @@ export function successAddedToCart(productId) {
 }
 
 export function removeFromCart(productId) {
-  // get carts from storage
-  const cartStorage = getCarts();
-  if (cartStorage !== null) {
-    carts = cartStorage;
-  }
-
   carts = carts.filter((cartItem) => cartItem.productId !== productId);
   // save cart
   saveCart();
@@ -94,8 +89,6 @@ function calculateItem() {
 }
 
 export function updateDeliveryOption(productId, deliveryOptionId) {
-  carts = getCarts();
-
   carts.find((cartItem) => cartItem.productId === productId).deliveryOptionId =
     Number.parseInt(deliveryOptionId);
 

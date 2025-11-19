@@ -1,4 +1,4 @@
-import { centsToDollar } from "../../helper/moneyConverter.js";
+import { centsToDollar } from "../../../helper/moneyConverter.js";
 
 describe('tests suite: formatCurrency', () => { 
     it('convert cents to dollars', () => {
