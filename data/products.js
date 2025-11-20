@@ -5,7 +5,7 @@ export function getProduct(productId) {
 }
 
 // turning object data into class
-class Product {
+export class Product {
   id;
   image;
   name;
@@ -39,12 +39,12 @@ class Product {
 class Clothing extends Product {
   // -> to inherit Product Class, after the name of Clothing Class we add "extends"
   // some spesific property for this class
-  sizeChartLink;
+  #sizeChartLink;
 
   constructor(productDetails) {
     // so, if we want to call the constructor of this class parent (Product class), we call super()
     super(productDetails);
-    this.sizeChartLink = productDetails.sizeChartLink;
+    this.#sizeChartLink = productDetails.sizeChartLink;
   }
 
   // this method will replace / override the parent method, this call method overriding
@@ -52,8 +52,32 @@ class Clothing extends Product {
     // same as property, if we want to call the parent method, we call it with super
     // super.extraInfoHtml(); -> just example
     return `
-      <a href="${this.sizeChartLink}" target="_blank">
+      <a href="${this.#sizeChartLink}" target="_blank">
         Size Chart
+      </a>
+    `;
+  }
+}
+
+class Appliance extends Product {
+  #instructionsLink;
+  #warrantyLink;
+
+  constructor(productDetails) {
+    super(productDetails);
+    this.#instructionsLink = productDetails.instructionsLink;
+    this.#warrantyLink = productDetails.warrantyLink;
+  }
+  
+  extraInfoHtml() {
+    // same as property, if we want to call the parent method, we call it with super
+    // super.extraInfoHtml(); -> just example
+    return `
+      <a href="${this.#instructionsLink}" target="_blank">
+        Instructions
+      </a>
+      <a href="${this.#warrantyLink}" target="_blank">
+        Warranty
       </a>
     `;
   }
@@ -105,6 +129,9 @@ export const products = [
     },
     priceCents: 1899,
     keywords: ["toaster", "kitchen", "appliances"],
+    type: "appliances",
+    instructionsLink: "images/appliance-instructions.png",
+    warrantyLink: "images/appliance-warranty.png",
   },
   {
     id: "3ebe75dc-64d2-4137-8860-1f5a963e534b",
@@ -533,6 +560,8 @@ export const products = [
 ].map((product) => {
   if (product.type === "clothing") {
     return new Clothing(product);
+  } else if (product.type === "appliances") {
+    return new Appliance(product);
   }
 
   return new Product(product);
