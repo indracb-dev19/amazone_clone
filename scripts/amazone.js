@@ -1,6 +1,5 @@
 import { updateCart, successAddedToCart, getTotalItem } from "../data/carts.js";
 import { products } from "../data/products.js";
-import { centsToDollar } from "../helper/moneyConverter.js";
 
 let productsHTML = "";
 
@@ -8,6 +7,14 @@ let productsHTML = "";
 setTotalItem();
 
 products.forEach((product) => {
+  // example of polymorphism is below
+
+  /*
+    instead of using ternary, we can use polymorphism.
+
+    instead of : ${product instanceof Clothing ? 'show size chart html' : ''} (ternary)
+    use : ${product.extraInfoHtml()} (polymorphism)
+  */
   productsHTML += `
         <div class="product-container">
           <div class="product-image-container">
@@ -45,6 +52,8 @@ products.forEach((product) => {
               <option value="10">10</option>
             </select>
           </div>
+
+          ${product.extraInfoHtml()}
 
           <div class="product-spacer"></div>
 
