@@ -2,23 +2,25 @@
 // Class more cleaner and have more feature than function
 
 class Cart {
-  items;
+  items; // -> public property
   totalItem = 0;
-  localStorageKey;
+  #localStorageKey; // -> private property, only can access inside this class
 
   constructor(_localStorageKey) {
-    this.localStorageKey = _localStorageKey;
-    this.loadCartsFromStorage();
+    this.#localStorageKey = _localStorageKey;
+    this.#loadCartsFromStorage();
   }
 
-  loadCartsFromStorage() {
+  #loadCartsFromStorage() { // -> private method
     // to access the variable inside object, we can use "this" or the object name "cart"
-    this.items = JSON.parse(localStorage.getItem(this.localStorageKey)) ?? [];
+    this.items = JSON.parse(localStorage.getItem(this.#localStorageKey)) ?? [];
   }
-  saveCart() {
-    localStorage.setItem(this.localStorageKey, JSON.stringify(this.items));
+
+  saveCart() { // -> public method
+    localStorage.setItem(this.#localStorageKey, JSON.stringify(this.items));
     this.calculateItem();
   }
+
   calculateItem() {
     let total = 0;
     this.items.forEach((item) => (total += item.quantity));
@@ -27,6 +29,7 @@ class Cart {
 
     localStorage.setItem("totalCartItem-oop", this.totalItem.toString());
   }
+
   updateCart(productId) {
     const existingItem = this.items.find(
       (item) => item.productId === productId
@@ -52,12 +55,14 @@ class Cart {
     // save cart
     this.saveCart();
   }
+
   updateCartQuantity(productId, productQuantity) {
     this.items.find((cartItem) => cartItem.productId === productId).quantity =
       Number.parseInt(productQuantity);
 
     this.saveCart();
   }
+
   successAddedToCart(productId) {
     // show the success added to cart element
     document
@@ -71,6 +76,7 @@ class Cart {
         .classList.remove("show-element");
     }, 1000);
   }
+
   removeFromCart(productId) {
     this.items = this.items.filter(
       (cartItem) => cartItem.productId !== productId
@@ -78,6 +84,7 @@ class Cart {
     // save cart
     this.saveCart();
   }
+
   updateDeliveryOption(productId, deliveryOptionId) {
     this.items.find(
       (cartItem) => cartItem.productId === productId
