@@ -1,16 +1,18 @@
 import { getProduct } from "../../data/products.js";
 import { getDeliveryOption } from "../../data/deliveryOptions.js";
-import { carts, getTotalItem } from "../../data/carts.js";
+import { Cart } from "../../data/carts-class.js";
 import { centsToDollar } from "../../helper/moneyConverter.js";
 
 export function renderPaymentSummaryHTML() {
+    // init cart class
+    const cart = new Cart('cart');
     let cartItemAmount = 0;
     let shippingAmount = 0;
     const tax = 10/100;
 
     const taxString = `${tax * 100} %`;
 
-    carts.forEach(cartItem => {
+    cart.items.forEach(cartItem => {
         const product = getProduct(cartItem.productId);
         cartItemAmount += cartItem.quantity * product.priceCents;
 
@@ -29,7 +31,7 @@ export function renderPaymentSummaryHTML() {
           </div>
 
           <div class="payment-summary-row">
-            <div>Items (${getTotalItem()}):</div>
+            <div>Items (${cart.totalItem}):</div>
             <div class="payment-summary-money">$${cartItemAmount === NaN ? 0 : centsToDollar(cartItemAmount)}</div>
           </div>
 

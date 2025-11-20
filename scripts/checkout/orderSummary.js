@@ -1,18 +1,14 @@
 import dayjs from "https://unpkg.com/supersimpledev@8.5.0/dayjs/esm/index.js";
-import {
-  removeFromCart,
-  updateCartQuantity,
-  getTotalItem,
-  updateDeliveryOption,
-  carts
-} from "../../data/carts.js";
-import { getProduct } from "../../data/products.js";
+import { Cart } from "../../data/carts-class.js";
+import { getProduct, Product } from "../../data/products.js";
 import { centsToDollar } from "../../helper/moneyConverter.js";
 import { deliveryOptions } from "../../data/deliveryOptions.js";
 import { renderPaymentSummaryHTML } from "./paymentSummary.js";
 
 export function renderOrderSummaryHTML() {
-  document.querySelector(".order-summary").innerHTML = carts.map((cartItem) => {
+  // init cart class
+  const cart = new Cart('cart');
+  document.querySelector(".order-summary").innerHTML = cart.items.map((cartItem) => {
     let html = "";
     const product = getProduct(cartItem.productId);
     if (product && product !== undefined) {
@@ -22,7 +18,7 @@ export function renderOrderSummaryHTML() {
   });
 
   if (document.querySelector("#total-order-item")) {
-    document.querySelector("#total-order-item").innerHTML = getTotalItem();
+    document.querySelector("#total-order-item").innerHTML = cart.totalItem;
   }
 
   function getDeliveredDate(addedDays) {
@@ -136,13 +132,13 @@ export function renderOrderSummaryHTML() {
     deleteItem.addEventListener("click", () => {
       // get product
 
-      const deletedProduct = carts.find(
+      const deletedProduct = cart.items.find(
         (cartItem) => cartItem.productId === productId
       );
 
       if (deletedProduct) {
         // remove from cart
-        removeFromCart(productId);
+        cart.removeFromCart(productId);
 
         renderOrderSummaryHTML();
         renderPaymentSummaryHTML();
@@ -198,7 +194,7 @@ export function renderOrderSummaryHTML() {
 
         // save quantity first
         try {
-          updateCartQuantity(productId, qtyInput.value);
+          cart.updateCartQuantity(productId, qtyInput.value);
           // remove type attr for input and set again
           qtyInput.removeAttribute("type");
           qtyInput.setAttribute("type", "hidden");
@@ -221,7 +217,7 @@ export function renderOrderSummaryHTML() {
     const { productId, deliveryOptionId } = elm.dataset;
 
     elm.addEventListener("click", () => {
-      updateDeliveryOption(productId, deliveryOptionId);
+      cart.updateDeliveryOption(productId, deliveryOptionId);
       renderOrderSummaryHTML();
       renderPaymentSummaryHTML();
     });

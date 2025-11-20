@@ -1,7 +1,7 @@
 // we also can recreate object with a better way, using Class
 // Class more cleaner and have more feature than function
 
-class Cart {
+export class Cart {
   items; // -> public property
   totalItem = 0;
   #localStorageKey; // -> private property, only can access inside this class
@@ -9,11 +9,16 @@ class Cart {
   constructor(_localStorageKey) {
     this.#localStorageKey = _localStorageKey;
     this.#loadCartsFromStorage();
+    this.loadTotalItems();
   }
 
   #loadCartsFromStorage() { // -> private method
     // to access the variable inside object, we can use "this" or the object name "cart"
     this.items = JSON.parse(localStorage.getItem(this.#localStorageKey)) ?? [];
+  }
+
+  loadTotalItems() {
+    this.totalItem = JSON.parse(localStorage.getItem("totalCartItem")) ?? 0;
   }
 
   saveCart() { // -> public method
@@ -27,7 +32,7 @@ class Cart {
 
     this.totalItem = total;
 
-    localStorage.setItem("totalCartItem-oop", this.totalItem.toString());
+    localStorage.setItem("totalCartItem", this.totalItem.toString());
   }
 
   updateCart(productId) {

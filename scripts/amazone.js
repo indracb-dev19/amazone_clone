@@ -1,7 +1,10 @@
-import { updateCart, successAddedToCart, getTotalItem } from "../data/carts.js";
+import { Cart } from "../data/carts-class.js";
 import { products } from "../data/products.js";
 
 let productsHTML = "";
+
+// init cart Class
+const cart = new Cart('cart');
 
 // set total item first load
 setTotalItem();
@@ -77,12 +80,12 @@ document.getElementById("product-list").innerHTML = productsHTML;
 document.querySelectorAll(".add-to-cart-button").forEach((btn) => {
   btn.addEventListener("click", () => {
     const { productId } = btn.dataset;
-    updateCart(productId);
-    successAddedToCart(productId);
+    cart.updateCart(productId);
+    cart.successAddedToCart(productId);
     setTotalItem();
   });
 });
 
 function setTotalItem() {
-  document.querySelector('.cart-quantity').innerHTML = getTotalItem();
+  document.querySelector('.cart-quantity').innerHTML = cart.totalItem;
 }
