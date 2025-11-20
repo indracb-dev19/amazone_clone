@@ -1,5 +1,34 @@
+import { centsToDollar } from "../helper/moneyConverter.js";
+
 export function getProduct(productId) {
   return products.find((product) => product.id === productId);
+}
+
+// turning object data into class
+class Product {
+  id;
+  image; 
+  name;
+  rating;
+  priceCents;
+  keywords;
+
+  constructor(productDetails) {
+    this.id = productDetails.id;
+    this.image = productDetails.image;
+    this.name = productDetails.name;
+    this.rating = productDetails.rating;
+    this.priceCents = productDetails.priceCents;
+    this.keywords = productDetails.keywords;
+  }
+
+  generateImage() {
+    return `images/ratings/rating-${this.rating.stars * 10}.png`;
+  }
+
+  generatePrice() {
+    return centsToDollar(this.priceCents);
+  }
 }
 
 export const products = [
@@ -661,4 +690,6 @@ export const products = [
       "mens"
     ]
   }
-];
+].map((product) => {
+  return new Product(product);
+});

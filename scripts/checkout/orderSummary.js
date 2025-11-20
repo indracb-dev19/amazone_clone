@@ -53,7 +53,7 @@ export function renderOrderSummaryHTML() {
                     ${product.name}
                 </div>
                 <div class="product-price">
-                    $${centsToDollar(product.priceCents)}
+                    $${product.generatePrice()}
                 </div>
                 <div class="product-quantity">
                     <span>
