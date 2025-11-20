@@ -36,7 +36,7 @@ export class Product {
 }
 
 // now we want to create an inheritance Classes of Product Class named Clothing Class
-class Clothing extends Product {
+export class Clothing extends Product {
   // -> to inherit Product Class, after the name of Clothing Class we add "extends"
   // some spesific property for this class
   #sizeChartLink;
@@ -59,7 +59,7 @@ class Clothing extends Product {
   }
 }
 
-class Appliance extends Product {
+export class Appliance extends Product {
   #instructionsLink;
   #warrantyLink;
 
