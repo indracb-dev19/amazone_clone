@@ -1,6 +1,6 @@
 import { getProduct } from "../../data/products.js";
 import { getDeliveryOption } from "../../data/deliveryOptions.js";
-import { getCarts, getTotalItem } from "../../data/carts.js";
+import { carts, getTotalItem } from "../../data/carts.js";
 import { centsToDollar } from "../../helper/moneyConverter.js";
 
 export function renderPaymentSummaryHTML() {
@@ -9,8 +9,6 @@ export function renderPaymentSummaryHTML() {
     const tax = 10/100;
 
     const taxString = `${tax * 100} %`;
-
-    const carts = getCarts();
 
     carts.forEach(cartItem => {
         const product = getProduct(cartItem.productId);
