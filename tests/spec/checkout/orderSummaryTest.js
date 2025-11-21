@@ -1,5 +1,5 @@
 import { renderOrderSummaryHTML } from "../../../scripts/checkout/orderSummary.js";
-import { carts, loadCartsFromStorage } from "../../../data/carts.js";
+import { Cart } from "../../../data/carts-class.js";
 
 // to make a view like the real code, we need to created a container in tests.html
 
@@ -7,34 +7,39 @@ describe("tests suite: renderOrderSummaryHTML", () => {
   const testContainer = document.querySelector(".tests-container");
   const productIdTest1 = "e43638ce-6aa0-4b85-b27f-e1d07eb678c6";
   const productIdTest2 = "15b6fc6f-327a-4ec4-896f-486349e85a3d";
+
   // Using hooks to make our code more clean
 
   // beforeEach hook, let us run code before the test and share variable or value in it
   beforeEach(() => {
-    spyOn(localStorage, "setItem");
+    // init class
+    const cart = new Cart("cart");
+    
+    // make cart.items to empty
+    cart.items = [];
+    
+    // clear storage
+    localStorage.clear();
 
     testContainer.innerHTML = `
             <div class="order-summary"></div>
             <div class="payment-summary"></div>
         `;
 
-    // make mocks of localStorage.getItem and set the value to []
-    spyOn(localStorage, "getItem").and.callFake(() =>
-      JSON.stringify([
-        {
-          productId: productIdTest1,
-          quantity: 4,
-          deliveryOptionId: 1,
-        },
-        {
-          productId: productIdTest2,
-          quantity: 2,
-          deliveryOptionId: 1,
-        },
-      ])
-    );
-
-    loadCartsFromStorage();
+    [
+      {
+        productId: productIdTest1,
+        quantity: 4,
+        deliveryOptionId: 1,
+      },
+      {
+        productId: productIdTest2,
+        quantity: 2,
+        deliveryOptionId: 1,
+      },
+    ].forEach((item) => {
+      cart.updateCart(item.productId, item.quantity);
+    });
 
     renderOrderSummaryHTML();
   });
@@ -45,7 +50,7 @@ describe("tests suite: renderOrderSummaryHTML", () => {
   });
 
   it("display carts item", () => {
-    // check if carts render 1 item
+    // check if carts render 2 items
     expect(document.querySelectorAll(".cart-item-container").length).toEqual(2);
 
     // check if item quantity is correct

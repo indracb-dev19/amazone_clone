@@ -8,6 +8,7 @@ import { renderPaymentSummaryHTML } from "./paymentSummary.js";
 export function renderOrderSummaryHTML() {
   // init cart class
   const cart = new Cart('cart');
+  
   document.querySelector(".order-summary").innerHTML = cart.items.map((cartItem) => {
     let html = "";
     const product = getProduct(cartItem.productId);

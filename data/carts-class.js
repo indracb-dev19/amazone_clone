@@ -35,11 +35,10 @@ export class Cart {
     localStorage.setItem("totalCartItem", this.totalItem.toString());
   }
 
-  updateCart(productId) {
+  updateCart(productId, productQty = 1) {
     const existingItem = this.items.find(
       (item) => item.productId === productId
     );
-    let productQty = 1;
 
     if (document.getElementById(`select-product-qty-${productId}`)) {
       productQty = document.getElementById(
