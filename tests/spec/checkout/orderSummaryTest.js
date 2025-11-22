@@ -1,5 +1,6 @@
 import { renderOrderSummaryHTML } from "../../../scripts/checkout/orderSummary.js";
 import { Cart } from "../../../data/carts-class.js";
+import { loadProducts } from "../../../data/products.js";
 
 // to make a view like the real code, we need to created a container in tests.html
 
@@ -7,6 +8,14 @@ describe("tests suite: renderOrderSummaryHTML", () => {
   const testContainer = document.querySelector(".tests-container");
   const productIdTest1 = "e43638ce-6aa0-4b85-b27f-e1d07eb678c6";
   const productIdTest2 = "15b6fc6f-327a-4ec4-896f-486349e85a3d";
+
+  // beforeAll hooks runs before all the test run
+  beforeAll((done) => {
+    loadProducts(() => {
+      // done func is used to check if we already receive the response from backend
+      done()
+    });
+  });
 
   // Using hooks to make our code more clean
 
