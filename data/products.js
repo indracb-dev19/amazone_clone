@@ -86,6 +86,34 @@ export class Appliance extends Product {
 // get products from backend
 export let products = [];
 
+// using fetch function
+export function loadProductsFetch() {
+  // fetch using promise to get backend response
+  const promiseFetch = fetch("https://supersimplebackend.dev/products")
+    .then((response) => {
+      // this is the next step after we send our request, so we need to return the response as json using .json
+      return response.json();
+      // response.json is asynchronous that return a promise, so we need to wait until it return the data using next step
+    })
+    .then((value) => {
+      // and the we receive the data from backend using this func parameter
+      products = value.map((product) => {
+        if (product.type === "clothing") {
+          return new Clothing(product);
+        } else if (product.type === "appliances") {
+          return new Appliance(product);
+        }
+
+        return new Product(product);
+      });
+
+      console.log("products loaded");
+    });
+
+    return promiseFetch;
+}
+
+// using XMLHttpRequest Class
 export function loadProducts(fn) {
   const xhr = new XMLHttpRequest();
 
@@ -103,7 +131,7 @@ export function loadProducts(fn) {
       return new Product(product);
     });
 
-    console.log('products loaded');
+    console.log("products loaded");
 
     fn();
   });

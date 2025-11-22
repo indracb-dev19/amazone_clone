@@ -1,6 +1,6 @@
 import { renderOrderSummaryHTML } from "../../../scripts/checkout/orderSummary.js";
 import { Cart } from "../../../data/carts-class.js";
-import { loadProducts } from "../../../data/products.js";
+import { loadProducts, loadProductsFetch } from "../../../data/products.js";
 
 // to make a view like the real code, we need to created a container in tests.html
 
@@ -11,10 +11,13 @@ describe("tests suite: renderOrderSummaryHTML", () => {
 
   // beforeAll hooks runs before all the test run
   beforeAll((done) => {
-    loadProducts(() => {
-      // done func is used to check if we already receive the response from backend
-      done()
-    });
+    // use loadProductsFetch to simplify the code
+    loadProductsFetch().then(() => done());
+
+    // loadProducts(() => {
+    //   // done func is used to check if we already receive the response from backend
+    //   done()
+    // });
   });
 
   // Using hooks to make our code more clean
